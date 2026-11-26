@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Helper by hostad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&family=JetBrains+Mono:wght@500;600&display=swap&subset=cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="https://graczyy.github.io/invhelp/SDFSFSFS.png">
+</head>
+<body class="theme-liquid-gold-dark">
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <main class="main">
+      <header class="header">
+        <h1>Inventory Helper</h1>
+        <span class="badge">enhanced</span>
+      </header>
+
+      <section class="card players-section">
+        <h3>ID игроков</h3>
+        <div class="input-row">
+          <input id="playerIdInput" class="input" placeholder="Введите ID игрока (можно несколько через пробел)" autocomplete="off" inputmode="numeric">
+          <button id="addPlayerBtn" class="btn primary">Добавить</button>
+          <button id="clearPlayersBtn" class="btn secondary">Очистить</button>
+        </div>
+        <div id="idList" class="id-list"></div>
+      </section>
+
+      <div id="errorBox" class="error-box" role="alert"></div>
+
+      <section class="card inputs-section">
+        <h3>Настройки выдачи</h3>
+
+        <div class="checkbox-wrapper">
+          <label class="toggle-label">
+            <input type="checkbox" id="tpCheck" class="toggle-input">
+            <span class="toggle-custom"></span>
+            <span class="toggle-text">Добавить команду телепорта <code>/get</code></span>
+          </label>
+        </div>
+
+        <div class="groups">
+          <fieldset class="group">
+            <legend>Скины</legend>
+            <div class="group-row">
+              <div class="input-group"><label for="skin1">Скин 1</label><input id="skin1" class="input" placeholder="Например, 43" autocomplete="off"></div>
+              <div class="input-group"><label for="skin2">Скин 2 <small>(опционально)</small></label><input id="skin2" class="input" placeholder="Например, 6840" autocomplete="off"></div>
+            </div>
+            <p class="group-hint">Если указан скин 2, он достанется второй половине игроков.</p>
+          </fieldset>
+
+          <fieldset class="group">
+            <legend>Здоровье и броня</legend>
+            <div class="group-row">
+              <div class="input-group"><label for="health">Здоровье (HP)</label><input id="health" class="input" placeholder="0–150" autocomplete="off" type="number" min="0" max="150"></div>
+              <div class="input-group"><label for="armor">Броня</label><input id="armor" class="input" placeholder="0–320" autocomplete="off" type="number" min="0" max="320"></div>
+            </div>
+            <label class="toggle-label full-toggle">
+              <input type="checkbox" id="fullStatsCheck" class="toggle-input">
+              <span class="toggle-custom small"></span>
+              <span class="toggle-text highlight">FULL 150 / 320</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="group">
+            <legend>Оружие 1</legend>
+            <div class="group-row">
+              <div class="input-group"><label for="weaponId">ID оружия</label><input id="weaponId" class="input" placeholder="Например, 57" autocomplete="off"></div>
+              <div class="input-group"><label for="ammo">Патроны</label><input id="ammo" class="input" placeholder="0–2000" autocomplete="off" type="number" min="0" max="2000"></div>
+            </div>
+          </fieldset>
+
+          <fieldset class="group">
+            <legend>Оружие 2 <small>(опционально)</small></legend>
+            <div class="group-row">
+              <div class="input-group"><label for="weaponId2">ID оружия</label><input id="weaponId2" class="input" placeholder="Например, 5" autocomplete="off"></div>
+              <div class="input-group"><label for="ammo2">Патроны</label><input id="ammo2" class="input" placeholder="0–2000" autocomplete="off" type="number" min="0" max="2000"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="input-row actions-row">
+          <select id="presetSelector" class="input select-input" onchange="applyPreset(this.value)" aria-label="Пресет">
+            <option value="">— Выберите пресет —</option>
+            <option value="cs">CS (Counter-Strike)</option>
+            <option value="ffa">Каждый сам за себя</option>
+            <option value="bats">Биты</option>
+          </select>
+          <button id="generateBtn" class="btn primary main-action" disabled>Сгенерировать</button>
+        </div>
+
+        <div class="input-row footer-actions">
+          <button id="loadFileBtn" class="btn outline">Импорт .txt</button>
+          <button id="exportFileBtn" class="btn outline" disabled>Экспорт в .txt</button>
+          <button id="themeToggle" class="btn outline">Сменить тему</button>
+        </div>
+
+        <input type="file" id="fileInput" accept=".txt" style="display:none">
+      </section>
+
+      <section class="commands-section">
+        <div class="commands-header">
+          <span class="commands-meta" id="commandsMeta"></span>
+          <button id="resetBtn" class="btn danger" style="display:none">Сбросить всё</button>
+        </div>
+        <div class="progress"><i id="progressBar"></i></div>
+        <div id="commandOutput" class="commands"></div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <div class="card sidebar-card">
+        <h3>Справочники</h3>
+        <a href="https://docs.google.com/document/d/1W-apYrd3CoxvvTFG0JtjxHzokvz7G-yiT7Ugm90CSYU/edit?tab=t.0" target="_blank" rel="noopener" class="link-button">Скины</a>
+        <a href="https://docs.google.com/document/d/1NtxXMPbnQFeX6obx3SW9o32R3F-qA_vnTQ5D-twF3Rc/edit?tab=t.0" target="_blank" rel="noopener" class="link-button">Оружие</a>
+        <a href="https://docs.google.com/document/d/1b0grfk0dt3p4EFP_C2xWcX5mUwCMJpuH1bCrHeEk1JU/edit?tab=t.0" target="_blank" rel="noopener" class="link-button">Автомобили</a>
+      </div>
+    </aside>
+  </div>
+
+  <div id="themeModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Оформление</h3>
+        <button id="closeModalBtn" class="modal-close" aria-label="Закрыть">×</button>
+      </div>
+      <p class="modal-subtitle">Выберите тему интерфейса:</p>
+      <div class="theme-options-grid">
+        <button class="theme-opt-btn active" data-theme="theme-liquid-gold-dark"><span class="preview-circle gold-dark"></span> Liquid Gold (Dark)</button>
+        <button class="theme-opt-btn" data-theme="theme-liquid-gold-light"><span class="preview-circle gold-light"></span> Liquid Gold (Light)</button>
+        <button class="theme-opt-btn" data-theme="theme-liquid-glass"><span class="preview-circle glass"></span> Liquid Glass</button>
+        <button class="theme-opt-btn" data-theme="theme-obsidian-bronze"><span class="preview-circle bronze"></span> Obsidian &amp; Bronze</button>
+        <button class="theme-opt-btn" data-theme="theme-cosmic-platinum"><span class="preview-circle platinum"></span> Cosmic Platinum</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status"></div>
+  <footer>© 2026 hostad</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
